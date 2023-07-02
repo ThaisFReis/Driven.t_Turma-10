@@ -4,11 +4,11 @@ import { invalidDataError, notFoundError } from '@/errors';
 import addressRepository, { CreateAddressParams } from '@/repositories/address-repository';
 import enrollmentRepository, { CreateEnrollmentParams } from '@/repositories/enrollment-repository';
 import { exclude } from '@/utils/prisma-utils';
-import { ViaCEPAddress } from '@/protocols';
+import { ViaCEPAddress, AddressEnrollment } from '@/protocols';
 import { getAddress } from '@/utils/cep';
 
 // TODO - Receber o CEP por parâmetro nesta função.
-async function getAddressFromCEP(cep: string): Promise<ViaCEPAddress> {
+async function getAddressFromCEP(cep: string): Promise<AddressEnrollment> {
 
   // Pegar o CEP do usuário.
   const address = await getAddress(cep);
@@ -22,7 +22,7 @@ async function getAddressFromCEP(cep: string): Promise<ViaCEPAddress> {
     logradouro,
     complemento,
     bairro,
-    localidade,
+    cidade: localidade,
     uf,
   };
 
