@@ -78,9 +78,9 @@ export type CreateOrUpdateEnrollmentWithAddress = CreateEnrollmentParams & {
 };
 
 const enrollmentsService = {
+  getAddressFromCEP,
   getOneWithAddressByUserId,
   createOrUpdateEnrollmentWithAddress,
-  getAddressFromCEP,
 };
 
 export default enrollmentsService;
