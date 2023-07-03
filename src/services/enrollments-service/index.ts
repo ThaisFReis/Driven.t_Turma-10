@@ -8,17 +8,15 @@ import { ViaCEPAddress, AddressEnrollment } from '@/protocols';
 import { getAddress } from '@/utils/cep';
 
 // TODO - Receber o CEP por parâmetro nesta função.
-async function getAddressFromCEP(cep: string): Promise<AddressEnrollment> {
-
-  // Pegar o CEP do usuário.
-  const address = await getAddress(cep);
+async function getAddressFromCEP(cep: string) {
+  const address = await request.get(`${process.env.VIA_CEP_API}/${cep}/json/`);
 
   // Verificar se o CEP é válido.
-  if (!address) throw notFoundError();
+  if (!address.data || address.data.erro) throw notFoundError();
 
-  const  {  logradouro, complemento, bairro, localidade, uf } = address;
+  const  {  logradouro, complemento, bairro, localidade, uf } = address.data;
 
-  const addressEnrollment = {
+  const addressEnrollment: AddressEnrollment = {
     logradouro,
     complemento,
     bairro,
@@ -57,13 +55,17 @@ async function createOrUpdateEnrollmentWithAddress(params: CreateOrUpdateEnrollm
   const enrollment = exclude(params, 'address');
   const address = getAddressForUpsert(params.address);
 
-  const AddressFromCEP = await getAddressFromCEP(params.address.cep);
+  try{
+    await getAddressFromCEP(address.cep);
+  }
 
-  if (!AddressFromCEP) throw notFoundError();
+  catch(error) {
+    throw invalidDataError(['CEP inválido']);
+  }
 
-  const newEnrollment = await enrollmentRepository.upsert(params.userId, enrollment, exclude(enrollment, 'userId'));
+  const enrollmentWithAddress = await enrollmentRepository.upsert(params.userId, enrollment, exclude(enrollment, 'userId'));
 
-  await addressRepository.upsert(newEnrollment.id, address, address);
+  await addressRepository.upsert(enrollmentWithAddress.id, address, address);
 }
 
 function getAddressForUpsert(address: CreateAddressParams) {

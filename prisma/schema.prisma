@@ -47,7 +47,7 @@ model Enrollment {
   birthday  DateTime
   phone     String    @db.VarChar(255)
   userId    Int       @unique
-  User      User      @relation(fields: [userId], references: [id])
+  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   Address   Address[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
